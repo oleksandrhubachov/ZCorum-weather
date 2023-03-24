@@ -1,0 +1,10 @@
+spring:
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DB:weather_db}
+    username: ${MYSQL_USERNAME:root}
+    password: ${MYSQL_PASSWORD:root}
+    driver-class-name: com.mysql.cj.jdbc.Driver

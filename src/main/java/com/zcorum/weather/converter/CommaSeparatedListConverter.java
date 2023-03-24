@@ -6,6 +6,7 @@ import javax.persistence.Converter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Converter
@@ -29,8 +30,17 @@ public class CommaSeparatedListConverter implements AttributeConverter<List<Doub
 			return new ArrayList<>();
 		}
 		return Arrays.stream(joined.split(DELIMITER))
-				.map(Double::valueOf)
+				.map(this::stringToDouble)
+				.filter(Objects::nonNull)
 				.collect(Collectors.toList());
+	}
+
+	private Double stringToDouble(String value) {
+		try {
+			return Double.valueOf(value);
+		} catch (NumberFormatException e) {
+			return null;
+		}
 	}
 
 }

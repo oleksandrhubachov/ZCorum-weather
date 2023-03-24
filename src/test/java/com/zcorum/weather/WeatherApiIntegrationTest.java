@@ -27,6 +27,8 @@ import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 @Sql(scripts = {"/create-default-db-data.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
@@ -112,6 +114,22 @@ public class WeatherApiIntegrationTest {
 		ResponseEntity<WeatherDto> getWeatherResponse = testRestTemplate.getForEntity(controllerUrl + "/" + responseEntity.getBody().getId(), WeatherDto.class);
 		assertEquals(HttpStatus.OK, getWeatherResponse.getStatusCode());
 		assertEquals(responseEntity.getBody().getId(), getWeatherResponse.getBody().getId());
+	}
+
+	@Test
+	public void testCreateRecordWithoutTemperature() {
+		WeatherDto dto = generateDto();
+		dto.setTemperatures(null);
+		ResponseEntity<WeatherDto> responseEntity = testRestTemplate.postForEntity(controllerUrl, dto, WeatherDto.class);
+		assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode());
+		assertNotNull(responseEntity.getBody().getId());
+		assertEquals(dto.getCity(), responseEntity.getBody().getCity());
+		assertNull(responseEntity.getBody().getTemperatures());
+
+		ResponseEntity<WeatherDto> getWeatherResponse = testRestTemplate.getForEntity(controllerUrl + "/" + responseEntity.getBody().getId(), WeatherDto.class);
+		assertEquals(HttpStatus.OK, getWeatherResponse.getStatusCode());
+		assertEquals(responseEntity.getBody().getId(), getWeatherResponse.getBody().getId());
+		assertTrue(getWeatherResponse.getBody().getTemperatures().isEmpty());
 	}
 
 	private WeatherDto generateDto() {
